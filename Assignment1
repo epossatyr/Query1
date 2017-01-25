@@ -6,4 +6,9 @@ ORDER BY last_name;
 FROM section
 ORDER BY location;
 
-3.
+3. SELECT first_name, last_name
+FROM instructor
+WHERE first_name LIKE 'T%'
+ORDER BY first_name;
+
+4. 
