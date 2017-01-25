@@ -11,4 +11,24 @@ FROM instructor
 WHERE first_name LIKE 'T%'
 ORDER BY first_name;
 
-4. 
+4. SELECT phone, first_name || ' ' || last_name AS FullName, employer
+FROM student
+WHERE last_name = 'Torres'
+ORDER BY employer;
+
+5. SELECT course_no, description
+FROM course
+WHERE prerequisite = 350
+ORDER BY course_no;
+
+6. SELECT course_no, description, cost
+FROM course
+WHERE course_no LIKE '2%%' AND cost < 1100
+ORDER BY course_no;
+
+7. SELECT course_no, section_id, location
+FROM section
+WHERE (course_no BETWEEN 100 AND 199) AND location IN ('L214', 'L509')
+ORDER BY location, course_no;
+
+8.
