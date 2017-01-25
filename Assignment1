@@ -1,3 +1,9 @@
 1. SELECT salutation, first_name, last_name
 FROM instructor
 ORDER BY last_name;
+
+2. SELECT DISTINCT location
+FROM section
+ORDER BY location;
+
+3.
