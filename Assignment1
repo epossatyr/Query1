@@ -31,4 +31,17 @@ FROM section
 WHERE (course_no BETWEEN 100 AND 199) AND location IN ('L214', 'L509')
 ORDER BY location, course_no;
 
-8.
+8. SELECT course_no, section_id, capacity
+FROM section
+WHERE capacity IN (12, 15)
+ORDER BY course_no, section_id;
+
+9. SELECT student_id, numeric_grade
+FROM grade
+WHERE grade_type_code = 'MT' AND section_id = 141
+ORDER BY student_id, numeric_grade;
+
+10. SELECT course_no, description
+FROM course
+WHERE (course_no BETWEEN 300 AND 399) AND prerequisite IS NOT NULL
+ORDER BY description;
