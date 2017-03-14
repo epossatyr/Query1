@@ -1,0 +1,141 @@
+1.SELECT student_id
+FROM enrollment e JOIN section s
+ON e.section_id = s.section_id
+WHERE course_no BETWEEN 100 and 199
+GROUP BY student_id
+HAVING count(*) = (SELECT MAX(number_sections)
+                  FROM( SELECT student_id, count(*) as number_sections
+                        FROM enrollment e JOIN section s
+                        ON e.section_id = s.section_id
+                        WHERE course_no BETWEEN 100 and 199
+                        GROUP BY student_id));
+
+2. SELECT student_id, last_name, first_name
+   FROM student s JOIN enrollment e
+   ON s.student_id = e.student_id
+   JOIN grade g
+   ON e.section_id = g.section_id
+   AND e.student_id = g.student_id
+   JOIN section se
+   ON se.section_id = e.section_id
+   WHERE se.course_no = 230 AND se.section_id = 100 AND g.grade_type_code = 'FI'
+   AND numeric_grade =(SELECT MAX(numeric_grade) 
+   			FROM (SELECT first_name, last_name, numeric_grade
+                        	FROM student s JOIN enrollment e
+                        	ON s.student_id = e.student_id
+                        	JOIN grade g
+                        	ON e.section_id = g.section_id
+                        	AND e.student_id = g.student_id
+                        	JOIN section se
+                        	ON se.section_id = e.section_id
+                        	WHERE se.course_no = 230 AND se.section_id = 100 AND g.grade_type_code = 'FI'));
+
+3. select i.instructor_id, salutation, first_name, last_name from instructor i
+    where i.instructor_id NOT IN (select s.instructor_id from section s);
+
+
+4. SELECT LAST_NAME, G.NUMERIC_GRADE
+FROM STUDENT s JOIN enrollment e
+ON s.student_id = e.student_id
+JOIN grade g
+ON e.student_id = g.student_id
+WHERE g.grade_type_code = 'FI'
+AND e.section_id = 90
+AND g.numeric_grade > (SELECT AVG(num)
+                        FROM (SELECT LAST_NAME, G.NUMERIC_GRADE, AVG(g.numeric_grade) as num
+                              FROM STUDENT s JOIN enrollment e
+                              ON s.student_id = e.student_id
+                              JOIN grade g
+                              ON e.student_id = g.student_id
+                              WHERE g.grade_type_code = 'FI'
+                              AND e.section_id = 90
+                              GROUP BY LAST_NAME, G.NUMERIC_GRADE))
+ORDER BY LAST_NAME;
+                              
+5. SELECT C.COURSE_NO, C.DESCRIPTION
+FROM section s JOIN ENROLLMENT E
+ON s.section_id = e.section_id
+JOIN course c
+ON c.course_no = s.course_no
+GROUP BY C.COURSE_NO, C.DESCRIPTION
+HAVING count(*) = (SELECT MIN(num)
+                    FROM (SELECT C.COURSE_NO, C.DESCRIPTION, count(*) as num
+                          FROM section s JOIN ENROLLMENT E
+                          ON s.section_id = e.section_id
+                          JOIN course c
+                          ON c.course_no = s.course_no
+                          GROUP BY C.COURSE_NO, C.DESCRIPTION))
+ORDER BY C.COURSE_NO;
+
+6.SELECT c.course_no, description
+FROM course c
+WHERE c.course_no iN (SELECT s.course_no
+                      FROM section s
+                      WHERE to_char(start_date_time, 'HH:MI') = '10:30')
+ORDER BY c.course_no;
+
+7. SELECT s.section_id, std.last_name
+FROM section s JOIN grade g
+ON s.section_id = g.section_id
+JOIN student std
+ON g.student_id = std.student_id
+WHERE s.section_id = 120
+AND g.grade_type_code = 'QZ' AND g.grade_code_occurrence = 3
+AND g.numeric_grade < (SELECT AVG(g.numeric_grade)
+                       FROM section s JOIN grade g
+                       ON s.section_id = g.section_id
+                       WHERE s.section_id = 120
+                       AND g.grade_type_code = 'QZ' AND g.grade_code_occurrence = 3);
+
+8. SELECT DISTINCT std.first_name, std.last_name, std.phone
+FROM student std JOIN enrollment e
+ON e.student_id = std.student_id
+WHERE std.student_id IN (SELECT student_id
+                        FROM enrollment e JOIN section s
+                          ON e.section_id = s.section_id
+                       WHERE s.section_id IN (SELECT section_id
+                                          FROM section s JOIN course c
+                                           ON s.course_no = c.course_no
+                                             WHERE s.course_no IN (SELECT course_no
+                                                                   FROM course
+                                                                   WHERE description = 'Project Management')))
+AND std.student_id IN (SELECT student_id
+                        FROM enrollment e JOIN section s
+                          ON e.section_id = s.section_id
+                       WHERE s.section_id IN (SELECT section_id
+                                          FROM section s JOIN course c
+                                           ON s.course_no = c.course_no
+                                             WHERE s.course_no IN (SELECT course_no
+                                                                   FROM course
+                                                                   WHERE description = 'Systems Analysis')));
+
+9. SELECT i.first_name, i.last_name, c.course_no, c.description
+FROM instructor i JOIN section s
+ON i.instructor_id = s.instructor_id
+JOIN course c
+ON s.course_no = c.course_no
+WHERE c.description LIKE '%Java%'
+AND i.instructor_id IN (SELECT s.instructor_id
+                          FROM section s JOIN course c
+                          ON s.course_no = c.course_no
+                          WHERE c.description LIKE '%Java%'
+                          GROUP BY s.instructor_id
+                          HAVING count(*) = (SELECT MAX(num)
+                                             FROM (SELECT s.instructor_id, COUNT(*) as num
+                                                    FROM section s JOIN course c
+                                                     ON s.course_no = c.course_no
+                                                     WHERE c.description LIKE '%Java%'
+                                                    GROUP BY s.instructor_id)));
+
+10. SELECT DISTINCT s.student_id, s.last_name
+FROM student s JOIN Grade g
+ON s.student_id = g.student_id
+JOIN section se
+ON se.section_id = g.section_id
+WHERE se.section_id = 130 AND g.grade_type_code = 'FI'
+AND g.numeric_grade > (SELECT AVG(g.numeric_grade)
+            FROM section s JOIN grade g
+            ON s.section_id = g.section_id
+            WHERE s.section_id = 130
+            AND g.grade_type_code = 'FI');
+
